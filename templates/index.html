@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SummifyPro | AI-Powered Document Summarization</title>
+    <meta name="description" content="Instantly summarize long documents with AI-powered SummifyPro. Save time with accurate, concise summaries.">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header animate__animated animate__fadeInDown">
+            <div class="logo">
+                <i class="fas fa-scroll logo-icon"></i>
+                <h1>SummifyPro</h1>
+                <span class="beta-badge">BETA</span>
+            </div>
+            <div class="about-summary">
+                <p>       AI-powered document summarization tool that helps you extract key information quickly and efficiently.</p>
+            </div>
+            
+            <div class="header-actions">
+                <button id="theme-toggle" class="btn-icon tooltip" data-tooltip="Toggle theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+
+            <section class="content-section card animate__animated animate__fadeIn">
+                <h2><i class="fas fa-info-circle"></i> About SummifyPro</h2>
+                <div class="content-grid">
+                    <div class="content-card">
+                        <h3><i class="fas fa-bolt"></i> How It Works</h3>
+                        <p>SummifyPro uses advanced AI and natural language processing to analyze your documents and extract the most important information. Our algorithm identifies key concepts, main ideas, and critical details to create concise, readable summaries.</p>
+                    </div>
+                    <div class="content-card">
+                        <h3><i class="fas fa-university"></i> Perfect for Students</h3>
+                        <p>Students can save hours of study time by summarizing lengthy textbooks, research papers, and lecture notes. Our tool helps you focus on what matters most for your exams and assignments.</p>
+                    </div>
+                    <div class="content-card">
+                        <h3><i class="fas fa-briefcase"></i> Business Applications</h3>
+                        <p>Professionals use SummifyPro to quickly digest reports, meeting notes, and industry documents. Stay informed without spending hours reading - perfect for executives, analysts, and busy professionals.</p>
+                    </div>
+                </div>
+            </section>
+            
+            
+        </header>
+
+        <main class="main-content">
+            <div class="input-section card animate__animated animate__fadeInLeft">
+                <div class="section-header">
+                    <h3><i class="fas fa-keyboard"></i> Input Text</h3>
+                    <div class="file-upload">
+                        <input type="file" id="file-input" accept=".pdf,.docx,.txt" hidden>
+                        <button id="upload-btn" class="btn-secondary tooltip" data-tooltip="Supports PDF, DOCX, TXT">
+                            <i class="fas fa-upload"></i> Upload Document
+                        </button>
+                    </div>
+                </div>
+                <textarea id="input-text" placeholder="Paste your text here or upload a document..."></textarea>
+                <div class="input-footer">
+                    <div class="word-count">
+                        <span id="word-count">0</span> words
+                    </div>
+                    <div class="controls">
+                        <div class="length-selector tooltip" data-tooltip="Adjust summary length">
+                            <label for="length"><i class="fas fa-ruler"></i></label>
+                            <select id="length">
+                                <option value="short">Short</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="long">Long</option>
+                            </select>
+                        </div>
+                        <button id="summarize-btn" class="btn-primary pulse-on-hover">
+                            <i class="fas fa-magic"></i> Summarize
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="output-section card animate__animated animate__fadeInRight">
+                <div class="section-header">
+                    <h3><i class="fas fa-file-contract"></i> Summary</h3>
+                    <div class="summary-stats" id="summary-stats">
+                        <div class="stat">
+                            <span class="stat-label">Original:</span>
+                            <span class="stat-value" id="original-words">-</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Summary:</span>
+                            <span class="stat-value" id="summary-words">-</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Reduction:</span>
+                            <span class="stat-value" id="reduction">-</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="summary-box" id="summary-output">
+                    <div class="placeholder">
+                        <i class="fas fa-robot animate__animated animate__pulse animate__infinite"></i>
+                        <p>Your AI-generated summary will appear here</p>
+                    </div>
+                </div>
+                <div class="output-footer">
+                    <button id="copy-btn" class="btn-secondary tooltip" disabled data-tooltip="Copy to clipboard">
+                        <i class="far fa-copy"></i> Copy
+                    </button>
+                    <button id="download-btn" class="btn-secondary tooltip" disabled data-tooltip="Download as TXT">
+                        <i class="fas fa-download"></i> Download
+                    </button>
+                </div>
+            </div>
+
+            <div class="history-section card animate__animated animate__fadeInUp">
+                <div class="section-header">
+                    <h3><i class="fas fa-history"></i> Recent Summaries</h3>
+                    <button id="clear-history" class="btn-text tooltip" data-tooltip="Clear all history">
+                        <i class="fas fa-trash-alt"></i> Clear All
+                    </button>
+                </div>
+                <div class="history-list" id="history-list">
+                    <div class="history-empty">
+                        <i class="fas fa-clock-rotate-left animate__animated animate__fadeIn"></i>
+                        <p>Your summary history will appear here</p>
+                    </div>
+                </div>
+            </div>
+
+           
+
+            <section class="testimonials-section card animate__animated animate__fadeIn">
+                <h2><i class="fas fa-star"></i> What Our Users Say</h2>
+                <div class="testimonials-grid">
+                    <div class="testimonial-card">
+                        <div class="testimonial-header">
+                            <img src="https://randomuser.me/api/portraits/women/45.jpg" alt="Sarah Johnson" class="testimonial-avatar">
+                            <div class="testimonial-author">
+                                <h4>Sarah Johnson</h4>
+                                <div class="testimonial-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p>"SummifyPro has been a game-changer for my graduate studies. I can process 10 research papers in the time it used to take me to read one!"</p>
+                    </div>
+                    
+                    <div class="testimonial-card">
+                        <div class="testimonial-header">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Michael Chen" class="testimonial-avatar">
+                            <div class="testimonial-author">
+                                <h4>Michael Chen</h4>
+                                <div class="testimonial-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p>"As a busy executive, I need to stay informed but don't have time to read everything. This tool gives me the key points from lengthy reports in seconds."</p>
+                    </div>
+                    
+                    <div class="testimonial-card">
+                        <div class="testimonial-header">
+                            <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Emily Rodriguez" class="testimonial-avatar">
+                            <div class="testimonial-author">
+                                <h4>Emily Rodriguez</h4>
+                                <div class="testimonial-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p>"I was skeptical at first, but SummifyPro consistently produces accurate summaries that capture all the important details. Highly recommended!"</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer animate__animated animate__fadeIn">
+            <p>© 2025 SummifyPro. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#"><i class="fas fa-lock"></i> Privacy</a>
+                <a href="#"><i class="fas fa-file-alt"></i> Terms</a>
+                <a href="#"><i class="fas fa-envelope"></i> Contact</a>
+            </div>
+        </footer>
+    </div>
+
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p>Generating your summary...</p>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
