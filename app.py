@@ -21,19 +21,27 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 def initialize_nltk():
-    """Initialize NLTK data with robust error handling"""
+    """Initialize NLTK data with robust error handling for deployment"""
     try:
-        nltk.data.find('tokenizers/punkt')
-        nltk.data.find('taggers/averaged_perceptron_tagger')
-    except LookupError:
-        print("Downloading NLTK data...")
-        try:
-            nltk.download('punkt', quiet=True)
-            nltk.download('averaged_perceptron_tagger', quiet=True)
-            print("NLTK data downloaded successfully")
-        except Exception as e:
-            print(f"Error downloading NLTK data: {str(e)}")
-            raise
+        # Set the NLTK data path to a directory within your project
+        nltk_data_path = os.path.join(os.path.dirname(__file__), 'nltk_data')
+        os.makedirs(nltk_data_path, exist_ok=True)
+        nltk.data.path.append(nltk_data_path)
+        
+        # Check and download required resources
+        required_data = ['punkt', 'averaged_perceptron_tagger', 'stopwords']
+        
+        for resource in required_data:
+            try:
+                nltk.data.find(f'tokenizers/{resource}' if resource == 'punkt' else f'taggers/{resource}')
+            except LookupError:
+                print(f"Downloading NLTK {resource}...")
+                nltk.download(resource, download_dir=nltk_data_path)
+                print(f"NLTK {resource} downloaded successfully")
+                
+    except Exception as e:
+        print(f"Error initializing NLTK: {str(e)}")
+        raise
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
