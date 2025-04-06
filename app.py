@@ -8,26 +8,10 @@ import uuid
 from datetime import datetime
 from utils.file_processor import process_file
 import nltk
-import threading
-import time  # Added for sleep function
-
-# Initialize NLTK data - Enhanced version
-def download_nltk_data():
-    try:
-        nltk.data.find('tokenizers/punkt')
-        nltk.data.find('tokenizers/punkt_tab/english')
-    except LookupError:
-        print("Downloading NLTK data...")
-        nltk.download('punkt', quiet=True)
-        nltk.download('punkt_tab', quiet=True)
-        print("NLTK data downloaded successfully")
-
-# Run in background but ensure it completes before summarization
-download_thread = threading.Thread(target=download_nltk_data)
-download_thread.start()
+import time
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
+app.secret_key = os.environ.get('SECRET_KEY') or os.urandom(24)
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5MB limit
 
 # Configuration
@@ -36,24 +20,29 @@ ALLOWED_EXTENSIONS = {'pdf', 'docx', 'txt'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+def initialize_nltk():
+    """Initialize NLTK data with robust error handling"""
+    try:
+        nltk.data.find('tokenizers/punkt')
+        nltk.data.find('taggers/averaged_perceptron_tagger')
+    except LookupError:
+        print("Downloading NLTK data...")
+        try:
+            nltk.download('punkt', quiet=True)
+            nltk.download('averaged_perceptron_tagger', quiet=True)
+            print("NLTK data downloaded successfully")
+        except Exception as e:
+            print(f"Error downloading NLTK data: {str(e)}")
+            raise
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def summarize_text(text, length='medium'):
     """Enhanced TextRank summarization with robust NLTK data handling"""
     try:
-        # Ensure NLTK data is downloaded (blocking if needed)
-        max_attempts = 5
-        for attempt in range(max_attempts):
-            try:
-                nltk.data.find('tokenizers/punkt')
-                nltk.data.find('tokenizers/punkt_tab/english')
-                break
-            except LookupError:
-                if attempt == max_attempts - 1:
-                    raise RuntimeError("NLTK tokenizers not found after multiple attempts")
-                download_nltk_data()
-                time.sleep(1)  # Wait before retrying
+        # Verify NLTK resources are available
+        nltk.data.find('tokenizers/punkt')
         
         parser = PlaintextParser.from_string(text, Tokenizer("english"))
         summarizer = TextRankSummarizer()
@@ -136,6 +125,9 @@ def upload_file():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    # Ensure NLTK data is downloaded before starting the app
-    download_nltk_data()
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # Initialize NLTK before starting the app
+    initialize_nltk()
+    
+    # Get port from environment variable or use 5000 as default
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
