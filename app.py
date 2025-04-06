@@ -20,34 +20,34 @@ ALLOWED_EXTENSIONS = {'pdf', 'docx', 'txt'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-def initialize_nltk():
-    """Initialize NLTK data with robust error handling for deployment"""
+def download_nltk_data():
+    """Download required NLTK data with explicit path setting"""
+    nltk_data_path = os.path.join(os.getcwd(), 'nltk_data')
+    os.makedirs(nltk_data_path, exist_ok=True)
+    nltk.data.path.append(nltk_data_path)
+    
     try:
-        # Set the NLTK data path to a directory within your project
-        nltk_data_path = os.path.join(os.path.dirname(__file__), 'nltk_data')
-        os.makedirs(nltk_data_path, exist_ok=True)
-        nltk.data.path.append(nltk_data_path)
-        
-        # Check and download required resources
-        required_data = ['punkt', 'averaged_perceptron_tagger', 'stopwords']
-        
-        for resource in required_data:
-            try:
-                nltk.data.find(f'tokenizers/{resource}' if resource == 'punkt' else f'taggers/{resource}')
-            except LookupError:
-                print(f"Downloading NLTK {resource}...")
-                nltk.download(resource, download_dir=nltk_data_path)
-                print(f"NLTK {resource} downloaded successfully")
-                
-    except Exception as e:
-        print(f"Error initializing NLTK: {str(e)}")
-        raise
+        nltk.data.find('tokenizers/punkt')
+    except LookupError:
+        print("Downloading NLTK punkt...")
+        nltk.download('punkt', download_dir=nltk_data_path)
+        print("NLTK punkt downloaded")
+    
+    try:
+        nltk.data.find('taggers/averaged_perceptron_tagger')
+    except LookupError:
+        print("Downloading NLTK averaged_perceptron_tagger...")
+        nltk.download('averaged_perceptron_tagger', download_dir=nltk_data_path)
+        print("NLTK averaged_perceptron_tagger downloaded")
+
+# Download NLTK data when app starts
+download_nltk_data()
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def summarize_text(text, length='medium'):
-    """Enhanced TextRank summarization with robust NLTK data handling"""
+    """Enhanced TextRank summarization with NLTK data verification"""
     try:
         # Verify NLTK resources are available
         nltk.data.find('tokenizers/punkt')
@@ -68,6 +68,8 @@ def summarize_text(text, length='medium'):
     except Exception as e:
         raise RuntimeError(f"Summarization error: {str(e)}")
 
+
+# ... [keep all your existing route functions unchanged] ...
 @app.route('/')
 def home():
     if 'history' not in session:
@@ -133,9 +135,5 @@ def upload_file():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    # Initialize NLTK before starting the app
-    initialize_nltk()
-    
-    # Get port from environment variable or use 5000 as default
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
